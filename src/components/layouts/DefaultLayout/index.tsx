@@ -1,14 +1,13 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../../Header';
-
-// import { Container } from './styles';
+import { LayoutContainer } from './styles';
 
 const DefaultLayout: React.FC = () => (
-  <div>
+  <LayoutContainer>
     <Header />
     <Outlet />
-  </div>
+  </LayoutContainer>
 );
 
 export default DefaultLayout;
