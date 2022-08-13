@@ -92,6 +92,10 @@ const BaseInput = styled.input`
     &::placeholder {
         color: ${({ theme }) => theme['gray-500']};
     }
+
+    &::-webkit-calendar-picker-indicator {
+        display: none !important;
+    }
 `;
 
 export const TaskInput = styled(BaseInput)`
