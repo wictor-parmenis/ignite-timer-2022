@@ -88,6 +88,7 @@ const BaseInput = styled.input`
     font-weight: bold;
     font-size: 1.125rem;
     padding: 0 0.5rem;
+    color: ${({ theme }) => theme['gray-500']};
 
     &::placeholder {
         color: ${({ theme }) => theme['gray-500']};
