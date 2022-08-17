@@ -1,48 +1,54 @@
-import React from 'react';
+/* eslint-disable import/no-duplicates */
+import { formatDistanceToNow } from 'date-fns';
+import ptBr from 'date-fns/locale/pt-BR';
+import React, { useContext } from 'react';
+import { CycleContext } from '../../contexts/CycleContext';
 import { HistoryContainer, HistoryList, Status } from './styles';
 
-const History: React.FC = () => (
-  <HistoryContainer>
-    <h1>Histórico</h1>
-    <HistoryList>
-      <table>
-        <thead>
-          <tr>
-            <th>Tarefa</th>
-            <th>Duração</th>
-            <th>Início</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Tarefa</td>
-            <td>20 minutos</td>
-            <td>Há 2 meses</td>
-            <td>
-              <Status statusColor="green">Concluído</Status>
-            </td>
-          </tr>
-          <tr>
-            <td>Tarefa</td>
-            <td>20 minutos</td>
-            <td>Há 2 meses</td>
-            <td>
-              <Status statusColor="red">Interrompido</Status>
-            </td>
-          </tr>
-          <tr>
-            <td>Tarefa</td>
-            <td>20 minutos</td>
-            <td>Há 2 meses</td>
-            <td>
-              <Status statusColor="yellow">Em andamento</Status>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </HistoryList>
-  </HistoryContainer>
-);
+const History: React.FC = () => {
+  const { cycle } = useContext(CycleContext);
+  return (
+    <HistoryContainer>
+      <h1>Histórico</h1>
+      <HistoryList>
+        <table>
+          <thead>
+            <tr>
+              <th>Tarefa</th>
+              <th>Duração</th>
+              <th>Início</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cycle.map((item) => (
+              <tr id={item.id}>
+                <td>{item.task}</td>
+                <td>{item.minutesAmount}</td>
+                <td>
+                  {formatDistanceToNow(item.startAt, {
+                    addSuffix: true,
+                    locale: ptBr,
+                  })}
+                </td>
+                <td>
+                  {item.finishedDate && (
+                    <Status statusColor="green">Concluído</Status>
+                  )}
+                  {item.interruptedDate && (
+                    <Status statusColor="red">Interrompido</Status>
+                  )}
+                  {!item.interruptedDate && !item.finishedDate && (
+                    <Status statusColor="yellow">Em andamento</Status>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </HistoryList>
+    </HistoryContainer>
+  );
+};
 
 export default History;

@@ -47,7 +47,9 @@
             }
         ],
         "react-hooks/rules-of-hooks": "error",
+        "react/prop-types": "off",
         "react-hooks/exhaustive-deps": "warn",
+        "react/jsx-no-constructed-context-values": "off",
         "import/prefer-default-export": "off",
         "jsx-a11y/label-has-associated-control": [
             "error",

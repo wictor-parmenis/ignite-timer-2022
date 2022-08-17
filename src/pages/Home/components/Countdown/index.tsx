@@ -1,12 +1,17 @@
 import { differenceInSeconds } from 'date-fns';
-import React, { useContext, useEffect, useState } from 'react';
-import { CycleContext } from '../..';
+import React, { useContext, useEffect } from 'react';
+import { CycleContext } from '../../../../contexts/CycleContext';
 
 import { CountDownContainer, Separator } from './styles';
 
 const Countdown: React.FC = () => {
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
-  const { currentCycle, cycleActive, markCurrentCycleAsFinished } = useContext(CycleContext);
+  const {
+    currentCycle,
+    cycleActiveId,
+    markCurrentCycleAsFinished,
+    amountSecondsPassed,
+    setSecondsPassed,
+  } = useContext(CycleContext);
 
   const totalSeconds = currentCycle ? currentCycle.minutesAmount * 60 : 0;
 
@@ -19,10 +24,10 @@ const Countdown: React.FC = () => {
   const seconds = String(secondsAmount).padStart(2, '0');
 
   useEffect(() => {
-    if (cycleActive) {
+    if (cycleActiveId) {
       document.title = `${minutes}:${seconds}`;
     }
-  }, [minutes, seconds, cycleActive]);
+  }, [minutes, seconds, cycleActiveId]);
 
   useEffect(() => {
     let interval: number;
@@ -31,10 +36,10 @@ const Countdown: React.FC = () => {
         const secondsDifference = differenceInSeconds(new Date(), currentCycle?.startAt);
         if (secondsDifference >= totalSeconds) {
           markCurrentCycleAsFinished();
-          setAmountSecondsPassed(0);
+          setSecondsPassed(0);
           clearInterval(interval);
         } else {
-          setAmountSecondsPassed(secondsDifference);
+          setSecondsPassed(secondsDifference);
         }
       }, 1000);
     }
@@ -42,7 +47,14 @@ const Countdown: React.FC = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [currentCycle, totalSeconds, amountSecondsPassed, cycleActive, markCurrentCycleAsFinished]);
+  }, [
+    currentCycle,
+    totalSeconds,
+    amountSecondsPassed,
+    cycleActiveId,
+    markCurrentCycleAsFinished,
+    setSecondsPassed,
+  ]);
 
   return (
     <CountDownContainer>
