@@ -6,7 +6,7 @@ import { CycleContext } from '../../contexts/CycleContext';
 import { HistoryContainer, HistoryList, Status } from './styles';
 
 const History: React.FC = () => {
-  const { cycle } = useContext(CycleContext);
+  const { cycles } = useContext(CycleContext);
   return (
     <HistoryContainer>
       <h1>Histórico</h1>
@@ -21,12 +21,12 @@ const History: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {cycle.map((item) => (
+            {cycles.map((item) => (
               <tr id={item.id}>
                 <td>{item.task}</td>
                 <td>{item.minutesAmount}</td>
                 <td>
-                  {formatDistanceToNow(item.startAt, {
+                  {formatDistanceToNow(new Date(item.startAt), {
                     addSuffix: true,
                     locale: ptBr,
                   })}

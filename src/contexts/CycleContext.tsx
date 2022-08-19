@@ -1,18 +1,17 @@
+import { differenceInSeconds } from 'date-fns';
 import {
-  createContext, useCallback, useContext, useState,
+  createContext, useCallback, useEffect, useReducer, useState,
 } from 'react';
-
-export interface Cycle {
-    id: string;
-    minutesAmount: number;
-    task: string;
-    startAt: Date;
-    interruptedDate?: Date;
-    finishedDate?: Date;
-}
+import { storageConfig } from '../config/storage';
+import {
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  markCurrentCycleAsFinishedAction,
+} from '../reducers/cycles/actions';
+import { Cycle, cyclesReducer, CycleStates } from '../reducers/cycles/reducer';
 
 interface CycleContextData {
-    cycle: Cycle[];
+    cycles: Cycle[];
     currentCycle: Cycle | undefined;
     cycleActiveId: string | null;
     amountSecondsPassed: number;
@@ -34,15 +33,39 @@ interface CycleProviderProps {
 export const CycleContext = createContext({} as CycleContextData);
 
 export const CycleProvider: React.FC<CycleProviderProps> = ({ children }) => {
-  const [cycle, setCycle] = useState<Cycle[]>([]);
-  const [cycleActiveId, setCycleActiveId] = useState<string | null>(null);
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
+  const [cycleState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      cycleActiveId: null,
+    },
+    (): CycleStates => {
+      const storedStateAsJSON = localStorage.getItem(storageConfig.cyclesState);
+      if (storedStateAsJSON) {
+        return JSON.parse(storedStateAsJSON);
+      }
+      return cycleState;
+    },
+  );
 
-  const currentCycle = cycle.find((item) => item.id === cycleActiveId);
+  useEffect(() => {
+    const stateString = JSON.stringify(cycleState);
+    localStorage.setItem(storageConfig.cyclesState, stateString);
+  }, [cycleState]);
+
+  const { cycleActiveId, cycles } = cycleState;
+  const currentCycle = cycles.find((item) => item.id === cycleActiveId);
+
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
+    if (currentCycle) {
+      return differenceInSeconds(new Date(), new Date(currentCycle?.startAt));
+    }
+
+    return 0;
+  });
 
   const markCurrentCycleAsFinished = (): void => {
-    // eslint-disable-next-line max-len
-    setCycle((state) => state.map((item) => (item.id === cycleActiveId ? { ...item, finishedDate: new Date() } : item)));
+    dispatch(markCurrentCycleAsFinishedAction());
   };
 
   const setSecondsPassed = (seconds: number): void => {
@@ -58,30 +81,21 @@ export const CycleProvider: React.FC<CycleProviderProps> = ({ children }) => {
       startAt: new Date(),
     };
 
-    setCycle((state) => [...state, newCycle]);
-    setCycleActiveId(id);
+    dispatch(addNewCycleAction(newCycle));
     setAmountSecondsPassed(0);
   }, []);
 
   const interruptCycle = useCallback(() => {
-    setCycleActiveId(null);
-    setCycle((state) => state.map((cycleItem) => {
-      if (cycleItem.id === cycleActiveId) {
-        return {
-          ...cycleItem,
-          interruptedDate: new Date(),
-        };
-      }
-      return cycleItem;
-    }));
-  }, [cycleActiveId, setCycle]);
+    dispatch(interruptCurrentCycleAction());
+  }, [dispatch]);
+
   return (
     <CycleContext.Provider
       value={{
         amountSecondsPassed,
         currentCycle,
         cycleActiveId,
-        cycle,
+        cycles,
         markCurrentCycleAsFinished,
         setSecondsPassed,
         createNewCycle,

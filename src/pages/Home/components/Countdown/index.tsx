@@ -33,7 +33,10 @@ const Countdown: React.FC = () => {
     let interval: number;
     if (currentCycle) {
       interval = setInterval(() => {
-        const secondsDifference = differenceInSeconds(new Date(), currentCycle?.startAt);
+        const secondsDifference = differenceInSeconds(
+          new Date(),
+          new Date(currentCycle?.startAt),
+        );
         if (secondsDifference >= totalSeconds) {
           markCurrentCycleAsFinished();
           setSecondsPassed(0);
