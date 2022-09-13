@@ -30,23 +30,21 @@ interface CycleProviderProps {
     children: React.ReactNode;
 }
 
+const initialValuesForCycle = {
+  cycles: [],
+  cycleActiveId: null,
+};
+
 export const CycleContext = createContext({} as CycleContextData);
 
 export const CycleProvider: React.FC<CycleProviderProps> = ({ children }) => {
-  const [cycleState, dispatch] = useReducer(
-    cyclesReducer,
-    {
-      cycles: [],
-      cycleActiveId: null,
-    },
-    (): CycleStates => {
-      const storedStateAsJSON = localStorage.getItem(storageConfig.cyclesState);
-      if (storedStateAsJSON) {
-        return JSON.parse(storedStateAsJSON);
-      }
-      return cycleState;
-    },
-  );
+  const [cycleState, dispatch] = useReducer(cyclesReducer, initialValuesForCycle, () => {
+    const storedStateAsJSON = localStorage.getItem(storageConfig.cyclesState);
+    if (storedStateAsJSON) {
+      return JSON.parse(storedStateAsJSON);
+    }
+    return initialValuesForCycle;
+  });
 
   useEffect(() => {
     const stateString = JSON.stringify(cycleState);
